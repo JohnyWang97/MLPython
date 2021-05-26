@@ -108,5 +108,87 @@ one_hot_multi.classes_
   
 ```
 
+## 6.8 将文本编码成词袋
 
+``` python
+import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
+
+#创建文本
+text_data = np.array(['I love Brazil. Brazil!',
+                     	'Sweden is best',
+                     	'Germany beats both'])
+#创建一个词袋特征矩阵
+count = CountVectorizer()
+bag_of_words = count.fit_transform(text_data)
+#查看词频统计矩阵
+bag_of_words.toarray()
+#产看每个特征对应的单词
+count.get_feature_names()
+
+#CounterVectorizer参数说明（ngram_range:n元模型，stop_words：停止词类型，vocabulary:限定观察值）
+count_2gram = CountVectorizer(ngram_range=(1,2),
+                                stop_words='english',
+                                vocabulary=['brazil'])
+
+bag = count_2gram.fit_transform(text_data)
+#查看特征矩阵
+bag.toarray()
+#查看一元模型和二元模型
+count_2gram.vocabulary_
+```
+
+## 6.9 按单词重要性加权
+
+``` python
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+#创建文本
+text_data = np.array(['I love Brazil country. Brazil!',
+                     	'Sweden is best',
+                     	'Germany beats both'])
+#创建TF-IDF特征矩阵
+tfidf = TfidfVectorizer()
+feature_matrix = tfidf.fit_transform(text_data)
+#查看矩阵格式
+feature_matrix
+#查看TF-IDF特征矩阵的稠密矩阵形式
+feature_matrix.toarray()
+array([[0.        , 0.        , 0.        , 0.81649658, 0.40824829,
+        0.        , 0.        , 0.40824829, 0.        ],
+       [0.        , 0.57735027, 0.        , 0.        , 0.        ,
+        0.        , 0.57735027, 0.        , 0.57735027],
+       [0.57735027, 0.        , 0.57735027, 0.        , 0.        ,
+        0.57735027, 0.        , 0.        , 0.        ]])
+#查看特征名字
+tfidf.vocabulary_
+{'love': 7,
+ 'brazil': 3,
+ 'country': 4,
+ 'sweden': 8,
+ 'is': 6,
+ 'best': 1,
+ 'germany': 5,
+ 'beats': 0,
+ 'both': 2}
+```
+
+tf(term frequency)词频:某个单词在文档中出现次数
+df(document frequency)文档频率：某个单词在多少个文档中出现过
+
+``` math
+TF- IDF输出值：tf-idf(t, d) = tf(t, d) * idf(t)
+tf(t,d):单词t在文档d中出现次数
+```
+
+$$
+idf(t)=log \frac{1+n_d}{1+df(d,t)}+1
+$$
+
+$$
+n_d表示文档的数量，df(d,t)表示单词t的频率（单词在多少文档中出现过），上述公式log底数为e
+$$
+
+一般来说会对结果进行L2范数的正则化处理，得到的结果越大，则该单词对文档就越重要
 
